@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "crawlee": "^3.15.3",
+    "dotenv": "^17.2.3",
+    "pg": "^8.17.1",
+    "playwright": "^1.57.0"
+  },
+  "name": "knu-crawler",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "knu_crawler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
