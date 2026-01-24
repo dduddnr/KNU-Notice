@@ -29,44 +29,41 @@ const crawler = new PlaywrightCrawler({
         log.info(`접속 성공: ${request.url}`);
 
         try {
-            // [수정 포인트 1] 특정 테이블 이름 대신, '게시글 제목(.td_subject)'이 뜰 때까지 기다림
+            // 특정 테이블 이름 대신, '게시글 제목(.bo_tit)'이 뜰 때까지 기다림
             // 이 클래스는 그누보드(학교사이트)에서 무조건 사용함
-            await page.waitForSelector('.td_subject', { timeout: 10000 });
+            await page.waitForSelector('.bo_tit', { timeout: 10000 });
         } catch (e) {
             log.error('게시글 목록을 찾을 수 없습니다. (선택자 불일치)');
             return;
         }
 
-        // [수정 포인트 2] 데이터 추출 로직을 더 유연하게 변경
         const notices = await page.evaluate(() => {
             // 모든 테이블의 행(tr)을 가져옴
             const rows = document.querySelectorAll('tr');
             const result = [];
+            const seenLinks = new Set();
 
             rows.forEach(row => {
-                // 각 행 안에 제목(subject)과 날짜(date)가 있는지 검사
-                const subjectElem = row.querySelector('.td_subject a');
+                // 각 행 안에 제목(bo_tit)과 날짜(date)가 있는지 검사
+                const subjectElem = row.querySelector('.bo_tit a');
                 const dateElem = row.querySelector('.td_date') || row.querySelector('.td_datetime');
 
                 if (subjectElem && dateElem) {
-                    const rawDate = dateElem.innerText.trim();
-                    // 날짜 형식이 2024-05-20 처럼 되어있는지 확인 (선택사항)
-                    
-                    result.push({
-                        title: subjectElem.innerText.trim(),
-                        link: subjectElem.href,
-                        date: rawDate
-                    });
+                    const title = subjectElem.innerText.trim();
+                    const link = subjectElem.href;
+                    const date = dateElem.innerText.trim();
+
+                    // 제목이 비어있지 않고, 처음 보는 링크일 때만 추가
+                    if (title.length > 0 && !seenLinks.has(link)) {
+                        seenLinks.add(link); // 장부에 기록
+                        result.push({ title, link, date });
+                    }
                 }
             });
             return result;
         });
 
         log.info(`총 ${notices.length}개의 공지사항을 발견했습니다.`);
-
-        console.log(`\n=== 수집된 데이터 목록 (${notices.length}개) ===`);
-        console.table(notices); 
-        console.log('==============================================\n');
 
         // 3. DB 저장
         let newCount = 0;
