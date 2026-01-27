@@ -11,7 +11,7 @@ app.use(express.json());
 const pool = new Pool({
   user: 'postgres',           // pgAdmin 기본 사용자
   host: 'localhost',          // 내 컴퓨터
-  database: 'knu_db',         // 방금 만든 DB 이름
+  database: 'postgres',         // 방금 만든 DB 이름
   password: 'hsm0710**', // ⚠️ 꼭 본인 비번으로 수정!
   port: 5432,                 // 기본 포트
 });
