@@ -16,6 +16,10 @@ function App() {
   const [selectedKeywords, setSelectedKeywords] = useState([]);
   const [selectedDept, setSelectedDept] = useState('전체');
 
+  // ★ 1. 날짜 검색 변수명 변경 (startDate -> searchStartDate)
+  const [searchStartDate, setSearchStartDate] = useState('');
+  const [searchEndDate, setSearchEndDate] = useState('');
+
   const keywordGuide = ["장학", "근로", "수강신청", "졸업", "인턴", "채용", "현장실습", "해외파견", "SW중심대학"];
 
   // --- 1. 데이터 로딩 ---
@@ -28,26 +32,20 @@ function App() {
     }
   }, [isLoggedIn]);
 
-  // [수정됨] useEffect 분리: 로그인 시 모달 표시
   useEffect(() => {
     if (isLoggedIn) {
-        // 로그인 하면 항상 키워드 가이드 모달 띄우기 (마이페이지가 아닐 때)
-        // isMyPage 상태는 초기값이 false이므로 로그인 직후엔 보통 false입니다.
         setShowGuideModal(true);
     }
   }, [isLoggedIn]);
 
-  // [수정됨] useEffect 분리: 사용자 정보(userInfo)가 변경되면 부서 자동 선택
   useEffect(() => {
     if (userInfo) {
       const deptOptions = ["전체", "경북대 학사공지", "컴퓨터학부", "전자공학부", "AI융합대학"];
-      // 유저 학과가 옵션에 있으면 해당 학과 선택, 없으면 '전체'
       const userDept = deptOptions.includes(userInfo.department) ? userInfo.department : '전체';
       setSelectedDept(userDept);
     }
   }, [userInfo]);
 
-  // selectedDept 변경 시 페이지 리셋
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedDept]);
@@ -133,7 +131,7 @@ function App() {
     .then(data => {
         if (data.success) {
             alert("정보가 수정되었습니다.");
-            setUserInfo(data.user); // 상태 업데이트 -> useEffect([userInfo]) 실행됨 -> 학과 자동 변경
+            setUserInfo(data.user);
             setIsMyPage(false);
         } else {
             alert(data.message);
@@ -160,7 +158,18 @@ function App() {
     const matchesDept = selectedDept === '전체' || notice.dept === selectedDept;
     const matchesKeywords = selectedKeywords.length === 0 || selectedKeywords.some(keyword => notice.title.toLowerCase().includes(keyword.toLowerCase()));
     const matchesSearch = notice.title.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesDept && matchesKeywords && matchesSearch;
+    
+    // ★ 2. 날짜 필터링 로직 (변수명 변경 적용)
+    const noticeDate = new Date(notice.date); 
+    const start = searchStartDate ? new Date(searchStartDate) : null;
+    const end = searchEndDate ? new Date(searchEndDate) : null;
+
+    // 시작일 조건: 설정 안했거나, 공지일 >= 시작일
+    const matchesStart = !start || noticeDate >= start;
+    // 종료일 조건: 설정 안했거나, 공지일 <= 종료일
+    const matchesEnd = !end || noticeDate <= end;
+
+    return matchesDept && matchesKeywords && matchesSearch && matchesStart && matchesEnd;
   });
 
   const postsPerPage = 10;
@@ -248,8 +257,8 @@ function App() {
           <h1>KNU 공지사항 피드</h1>
         </header>
 
+        {/* ★ 3. 검색 UI: 날짜 선택 필드 추가 */}
         <div className="search-container">
-          <input type="text" className="search-input" placeholder="검색..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           <select className="dept-select" value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}>
             <option value="전체">전체</option>
             <option value="경북대 학사공지">경북대 학사공지</option>
@@ -257,6 +266,32 @@ function App() {
             <option value="전자공학부">전자공학부</option>
             <option value="AI융합대학">AI융합대학</option>
           </select>
+          <input type="text" className="search-input" placeholder="제목 검색..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        </div>
+
+        {/* 날짜 필터 바 */}
+        <div className="date-filter-container">
+            <span className="filter-label">📅 기간 조회</span>
+            <input 
+                type="date" 
+                className="date-input"
+                value={searchStartDate} 
+                onChange={(e) => setSearchStartDate(e.target.value)}
+                title="조회 시작일" 
+            />
+            <span className="tilde">~</span>
+            <input 
+                type="date" 
+                className="date-input"
+                value={searchEndDate} 
+                onChange={(e) => setSearchEndDate(e.target.value)}
+                title="조회 종료일"
+            />
+            {(searchStartDate || searchEndDate) && (
+                <button className="reset-date-btn" onClick={() => {setSearchStartDate(''); setSearchEndDate('');}}>
+                    초기화
+                </button>
+            )}
         </div>
 
         <div className="notice-list">

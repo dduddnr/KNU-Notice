@@ -1,55 +1,50 @@
 import express from 'express';
-import { pool } from '../db.js';
-import { getRecommendationScore } from '../services/recommendationService.js';
+import { pool } from '../db.js'; // DB 설정 파일 경로에 맞게 수정
+import { getSingleRecommendation } from '../services/recommendationService.js';
 
 const router = express.Router();
 
-router.get('/:userId', async (req, res) => {
-  const { userId } = req.params;
-  const { keywords, dept } = req.query; // 쿼리 파라미터로 keywords와 dept 받기 (선택적)
-
-  const keywordsArray = keywords ? keywords.split(',').map(k => k.trim()) : [];
+// POST /api/recommendations/analyze
+router.post('/analyze', async (req, res) => {
+  const { userId, noticeId } = req.body;
 
   try {
-    // 1. 유저 데이터 자동 추출 (dept가 없으면 유저의 department 사용)
-    const userResult = await pool.query('SELECT department FROM users WHERE id = $1', [userId]);
-    if (userResult.rows.length === 0) return res.status(404).json({ message: "유저를 찾을 수 없습니다." });
-    
-    const userDept = userResult.rows[0].department;
-    const targetDept = dept || userDept; // dept 파라미터가 있으면 사용, 없으면 유저 department
-
-    // 2. 공지사항 데이터 자동 추출 (해당 학과 공지만)
-   const noticesResult = await pool.query(
-      `SELECT * FROM knu_notices 
-       WHERE (target_dept = $1 OR target_dept IS NULL OR $1 = '전체')
-       AND (end_date >= CURRENT_DATE OR end_date IS NULL)
-       AND post_date >= CURRENT_DATE - INTERVAL '1 month'
-       ORDER BY post_date DESC`, 
-      [targetDept]
+    // 1. 중복 체크는 동일하게 수행
+    const existingResult = await pool.query(
+      'SELECT ai_score, ai_reason FROM user_recommendations WHERE user_id = $1 AND notice_id = $2',
+      [userId, noticeId]
     );
-    
-    let notices = noticesResult.rows;
 
-    // 키워드가 있으면 필터링
-    if (keywordsArray.length > 0) {
-      notices = notices.filter(notice => 
-        keywordsArray.some(keyword => 
-          notice.title.toLowerCase().includes(keyword.toLowerCase()) || 
-          notice.content.toLowerCase().includes(keyword.toLowerCase())
-        )
-      );
+    if (existingResult.rows.length > 0) {
+      return res.json({ success: true, data: existingResult.rows[0], source: 'database' });
     }
 
-    if (notices.length === 0) {
-      return res.json({ success: true, data: [], message: keywordsArray.length > 0 ? "키워드에 맞는 공지가 없습니다." : "현재 조건에 맞는 공지가 없습니다." });
-    }
+    // 2. 데이터 조회
+    const [userRes, noticeRes] = await Promise.all([
+      pool.query('SELECT grade, department, experience_summary FROM users WHERE id = $1', [userId]),
+      pool.query('SELECT content FROM knu_notices WHERE id = $1', [noticeId])
+    ]);
 
-    // 필터링된 모든 공지 반환
-    res.json({ success: true, data: notices });
+    // 3. AI 분석 수행
+    // 만약 여기서 에러가 발생하면 아래의 INSERT 쿼리는 영원히 실행되지 않습니다.
+    const analysis = await getSingleRecommendation(userRes.rows[0], noticeRes.rows[0].content);
+
+    // 4. [저장] 분석이 성공했을 때만 실행됨
+    await pool.query(`
+      INSERT INTO user_recommendations (user_id, notice_id, ai_score, ai_reason)
+      VALUES ($1, $2, $3, $4)
+    `, [userId, noticeId, analysis.score, analysis.reason]);
+
+    res.json({ success: true, data: analysis, source: 'ai' });
 
   } catch (err) {
-    console.error("추천 라우터 에러:", err);
-    res.status(500).json({ success: false, message: "추천 시스템 가동 중 서버 오류가 발생했습니다." });
+    // 5. AI 오류나 DB 오류 모두 여기서 처리됩니다. 
+    // 저장은 수행되지 않으며 클라이언트에 실패 사실만 알립니다.
+    console.error("[분석 중단]: DB 저장을 수행하지 않았습니다.", err.message);
+    res.status(500).json({ 
+      success: false, 
+      message: "AI 분석 중 오류가 발생하여 결과를 저장하지 못했습니다." 
+    });
   }
 });
 
