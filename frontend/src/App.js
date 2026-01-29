@@ -248,7 +248,7 @@ function App() {
           {/* [왼쪽 사이드바] 검색 및 필터 */}
           <aside className="sidebar">
             <div className="sidebar-group">
-                <h3>📂 학과 필터</h3>
+                <h3>📂 게시판 필터</h3>
                 <select className="sidebar-select" value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}>
                     <option value="전체">전체 보기</option>
                     <option value="경북대 학사공지">경북대 학사공지</option>
