@@ -26,7 +26,8 @@
 # 1. 필수 라이브러리 설치 (crawlee, pg, dotenv, google-genai 등)
 npm install crawlee pg dotenv @google/genai express cors
 
-# 2. Playwright 브라우저 설치 (크롤러 작동용)
+# 2. Playwright 패키지 및 브라우저 설치 (크롤러 작동용)
+npm install playwright
 npx playwright install
 ```
 * #### Frontend 설정
@@ -85,6 +86,7 @@ DB_PORT=5432
 PORT=5000
 
 # API Keys
+# Google Gemini API 키 주소: https://aistudio.google.com/api-keys?hl=ko
 GEMINI_API_KEY=[Google Gemini API 키값]
 ```
 
