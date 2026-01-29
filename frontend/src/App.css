@@ -1,40 +1,51 @@
-/* 1. 구글 폰트에서 Noto Sans KR 가져오기 */
+/* =========================================
+   1. 글로벌 설정 & 폰트
+   ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+:root {
+  --knu-red: #b11030;
+  --knu-dark: #8b0d26;
+  --bg-gray: #f5f7fa;
+  --border-color: #e0e0e0;
+}
 
 body {
   font-family: 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
-  background-color: #f8f9fa;
+  background-color: var(--bg-gray);
   color: #333;
   margin: 0;
+  /* ★ 중요: 전체 페이지 스크롤을 막고, 내부 영역만 스크롤되게 함 */
+  overflow: hidden; 
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: inherit;
-  opacity: 0.05;
-  z-index: -1;
-}
-
-/* 2. 메인 제목 굵게 */
-.header h1 {
-  font-weight: 900;
-  font-size: 2.2rem;
-  letter-spacing: -1px;
-  margin-top: 10px;
-}
-
-/* [2] 로그인 & 회원가입 & 마이페이지 박스 (Auth) */
+/* =========================================
+   2. 로그인 / 회원가입 / 마이페이지 (Auth)
+   ========================================= */
 .auth-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh; /* height 대신 min-height로 내용이 많아져도 잘리지 않게 수정 */
-  padding: 40px 0;   /* 위아래 여백 추가 */
+  min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8ebee 100%);
   box-sizing: border-box;
+  padding: 20px;
+  overflow-y: auto; /* 내용이 넘치면 스크롤 */
+}
+
+/* 배경 로고 오버레이 */
+.bg-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Kyungpook_National_University_logo.png/600px-Kyungpook_National_University_logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40%;
+  opacity: 0.08;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .login-box {
@@ -43,7 +54,7 @@ body::before {
   border-radius: 20px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 420px; /* 폭을 살짝 넓힘 (Textarea 고려) */
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
@@ -57,14 +68,14 @@ body::before {
 
 .login-box h2 {
   margin: 0 0 10px 0;
-  color: #b11030;
+  color: var(--knu-red);
   font-size: 1.8rem;
   text-align: center;
   font-weight: 800;
   letter-spacing: -0.5px;
 }
 
-/* ★★★ 수정됨: input, select, textarea 스타일 통일 ★★★ */
+/* Auth 폼 공통 스타일 */
 .login-box input, 
 .login-box select, 
 .login-box textarea {
@@ -73,14 +84,13 @@ body::before {
   border: 1px solid #ddd;
   border-radius: 10px;
   font-size: 1rem;
-  font-family: 'Noto Sans KR', sans-serif; /* 폰트 상속 */
-  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+  font-family: inherit;
+  box-sizing: border-box;
   transition: all 0.2s;
 }
 
-/* Textarea 전용 스타일 */
 .login-box textarea {
-  resize: vertical; /* 세로 크기 조절만 허용 */
+  resize: vertical;
   line-height: 1.5;
   min-height: 100px;
 }
@@ -89,11 +99,10 @@ body::before {
 .login-box select:focus, 
 .login-box textarea:focus {
   outline: none;
-  border-color: #b11030;
+  border-color: var(--knu-red);
   box-shadow: 0 0 0 3px rgba(177, 16, 48, 0.1);
 }
 
-/* ★★★ 추가됨: 폼 라벨 스타일 (마이페이지용) ★★★ */
 .login-box label {
   display: block;
   margin-bottom: 6px;
@@ -105,7 +114,7 @@ body::before {
 .login-box button {
   width: 100%;
   padding: 1rem;
-  background-color: #b11030;
+  background-color: var(--knu-red);
   color: white;
   border: none;
   border-radius: 10px;
@@ -117,199 +126,11 @@ body::before {
 }
 
 .login-box button:hover {
-  background-color: #8e0d26;
+  background-color: var(--knu-dark);
   transform: translateY(-2px);
 }
 
-/* [3] 공지사항 메인 화면 (Dashboard) */
-.container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 20px;
-  position: relative;
-  z-index: 1;
-  background-color: transparent;
-}
-
-.header h1 {
-  text-align: center;
-  font-weight: 800;
-  color: #b11030;
-  margin-bottom: 10px;
-}
-
-/* 검색창 스타일 */
-.search-container {
-  max-width: 600px;
-  margin: 0 auto 30px auto;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.search-input {
-  flex: 1;
-  padding: 15px 25px;
-  border-radius: 30px;
-  border: 2px solid #eee;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.3s;
-}
-
-.search-input:focus {
-  border-color: #b11030;
-  box-shadow: 0 4px 12px rgba(177, 16, 48, 0.1);
-}
-
-.dept-select {
-  min-width: 180px;
-  padding: 15px 40px 15px 20px;
-  border-radius: 30px;
-  border: 2px solid #eee;
-  font-size: 16px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: all 0.3s;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-}
-
-.dept-select:focus {
-  border-color: #b11030;
-  outline: none;
-}
-
-/* 공지사항 카드 */
-.notice-card {
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 15px;
-  transition: transform 0.2s;
-  border-left: 4px solid transparent;
-  cursor: pointer;
-}
-
-.notice-card:hover {
-  transform: translateX(8px);
-  border-left-color: #b11030;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  background-color: #fdfdfd;
-}
-
-.dept-tag {
-  display: inline-block;
-  padding: 4px 10px;
-  background-color: rgba(177, 16, 48, 0.1);
-  color: #b11030;
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 6px;
-  margin-bottom: 8px;
-}
-
-.notice-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin: 10px 0;
-  color: #111;
-  line-height: 1.4;
-}
-
-.notice-date {
-  color: #888;
-  font-size: 0.85rem;
-}
-
-:root {
-  --knu-red: #b11030;
-  --knu-dark: #8b0d26;
-}
-
-.user-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 25px;
-  background-color: #fff;
-  border-bottom: 3px solid var(--knu-red);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  border-radius: 12px;
-  margin-bottom: 30px;
-}
-
-.header-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-/* ★★★ 수정됨: 버튼 스타일 통합 및 마이페이지 버튼 추가 ★★★ */
-.keyword-btn, .mypage-btn, .logout-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 키워드 버튼 (강조) */
-.keyword-btn {
-  background-color: var(--knu-red);
-  color: white;
-  border: 2px solid var(--knu-red);
-}
-.keyword-btn:hover {
-  background-color: white;
-  color: var(--knu-red);
-}
-
-/* 마이페이지 버튼 (중간 강조 - 회색톤 or 아웃라인) */
-.mypage-btn {
-  background-color: white;
-  color: #444;
-  border: 2px solid #ddd;
-}
-.mypage-btn:hover {
-  border-color: var(--knu-red);
-  color: var(--knu-red);
-  background-color: #fff5f5;
-}
-
-/* 로그아웃 버튼 (아웃라인) */
-.logout-btn {
-  background-color: white;
-  color: #666;
-  border: 2px solid #ccc;
-}
-.logout-btn:hover {
-  background-color: #f1f1f1;
-  color: #333;
-  border-color: #bbb;
-}
-
-.user-name b {
-  font-weight: 900;
-  color: #000;
-  font-size: 1.1rem;
-}
-
-.user-dept-grade {
-  margin-left: 10px;
-  color: #666;
-  font-weight: 500;
-  font-size: 0.95rem;
-}
-
-/* 링크 및 유틸리티 */
+/* Auth 하단 링크 */
 .auth-links {
   text-align: center;
   margin-top: 10px;
@@ -337,25 +158,331 @@ body::before {
   text-decoration: underline;
 }
 
-/* 페이지네이션 */
-.pagination {
+
+/* =========================================
+   3. 메인 앱 레이아웃 (App Shell)
+   ========================================= */
+.app-shell {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin: 40px 0 60px 0;
+  flex-direction: column;
+  height: 100vh;
 }
 
-.page-btn {
-  width: 35px;
-  height: 35px;
-  border: 1px solid #ddd;
-  background-color: #fff;
-  border-radius: 8px;
+/* 상단 헤더 */
+.app-header {
+  height: 60px;
+  background-color: white;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;       
+  align-items: center; 
+  gap: 12px;          
+}
+
+.header-logo {
+  height: 40px;        
+  width: auto;         
+}
+
+.header-left h1 {
+  font-size: 1.4rem;
+  color: var(--knu-red);
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info {
+  font-size: 0.9rem;
+  color: #555;
+  margin-right: 10px;
+}
+
+.mypage-btn, .logout-btn {
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.mypage-btn {
+  background: #fff;
+  border: 1px solid #ddd;
+  color: #333;
+}
+.mypage-btn:hover {
+  background: #f8f9fa;
+  border-color: #ccc;
+}
+
+.logout-btn {
+  background: white;
+  border: 1px solid var(--knu-red);
+  color: var(--knu-red);
+}
+.logout-btn:hover {
+  background: #fff0f2;
+}
+
+
+/* =========================================
+   4. 대시보드 (사이드바 + 메인 콘텐츠)
+   ========================================= */
+.dashboard-container {
+  display: flex;
+  flex: 1; /* 남은 높이 전체 차지 */
+  overflow: hidden; /* 내부 스크롤을 위해 overflow 제어 */
+}
+
+/* [왼쪽 사이드바] */
+.sidebar {
+  width: 280px; /* 고정 너비 */
+  background-color: white;
+  border-right: 1px solid var(--border-color);
+  padding: 25px;
+  overflow-y: auto; /* 세로 내용이 길어지면 스크롤 */
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.sidebar-group h3 {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0 0 10px 0;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 사이드바 내부 인풋 스타일 */
+.sidebar-select, 
+.sidebar-input, 
+.sidebar-date {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-bottom: 5px;
+  background-color: #fff;
+}
+
+.sidebar-input:focus, 
+.sidebar-select:focus, 
+.sidebar-date:focus {
+  border-color: var(--knu-red);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(177, 16, 48, 0.05);
+}
+
+.date-label {
+  display: block;
+  font-size: 0.8rem;
   color: #666;
+  margin: 8px 0 4px;
+  font-weight: 600;
+}
+
+/* 사이드바 버튼들 */
+.reset-btn-small {
+  width: 100%;
+  margin-top: 5px;
+  background-color: #f1f3f5;
+  border: none;
+  color: #666;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.reset-btn-small:hover { background-color: #e9ecef; }
+
+.keyword-btn-small {
+  width: 100%;
+  background-color: var(--knu-red);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+.keyword-btn-small:hover { background-color: var(--knu-dark); }
+
+/* 키워드 태그 (사이드바용) */
+.keyword-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mini-tag {
+  background: #fff0f2;
+  color: var(--knu-red);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid rgba(177, 16, 48, 0.1);
+}
+
+.no-keyword-msg {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0;
+}
+
+
+/* [오른쪽 메인 콘텐츠] */
+.feed-content {
+  flex: 1;
+  background-color: var(--bg-gray);
+  padding: 30px 40px;
+  overflow-y: auto; /* 내용 스크롤 */
+  position: relative;
+}
+
+.feed-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: #222;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 15px;
+}
+
+.count {
+  font-size: 1.1rem;
+  color: var(--knu-red);
+  margin-left: 5px;
+}
+
+/* 공지사항 카드 */
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.notice-card {
+  background: white;
+  padding: 22px 25px;
+  border-radius: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notice-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  border-color: var(--knu-red);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.dept-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+/* 학과별 태그 색상 */
+.dept-tag.global { background: #eee; color: #555; }
+.dept-tag.major { background: rgba(177, 16, 48, 0.1); color: var(--knu-red); }
+
+.notice-date {
+  color: #999;
+}
+
+.notice-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.45;
+  color: #222;
+  word-break: keep-all; /* 한글 줄바꿈 최적화 */
+}
+
+/* 검색 결과 없음 */
+.no-notices {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  font-size: 16px;
+  font-weight: 500;
+  background: white;
+  border-radius: 15px;
+  border: 1px dashed #ddd;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* =========================================
+   5. 페이지네이션 & 모달
+   ========================================= */
+.pagination {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-bottom: 40px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 8px;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .page-btn:hover {
@@ -364,26 +491,12 @@ body::before {
 }
 
 .page-btn.active {
-  background-color: var(--knu-red);
+  background: var(--knu-red);
   color: white;
   border-color: var(--knu-red);
 }
 
-/* 배경 오버레이 */
-.bg-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Kyungpook_National_University_logo.png/600px-Kyungpook_National_University_logo.png');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 40%;
-  opacity: 0.08;
-  z-index: -1;
-  pointer-events: none;
-}
-
-/* 모달 스타일 */
+/* 키워드 설정 모달 */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0;
@@ -408,7 +521,7 @@ body::before {
 
 .keyword-modal h2 {
   margin-bottom: 20px;
-  color: #b11030;
+  color: var(--knu-red);
   font-weight: 800;
 }
 
@@ -430,23 +543,23 @@ body::before {
   transition: all 0.2s;
   position: relative;
   font-size: 0.9rem;
+  white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 .keyword-tag:hover {
-  border-color: #b11030;
-  color: #b11030;
-  background-color: #fff5f5;
+  border-color: var(--knu-red);
+  color: var(--knu-red);
 }
 
 .keyword-tag.active {
-  background-color: #b11030;
+  background-color: var(--knu-red);
   color: white;
-  border-color: #b11030;
+  border-color: var(--knu-red);
 }
 
 .save-btn {
   padding: 12px 30px;
-  background-color: #b11030;
+  background-color: var(--knu-red);
   color: white;
   border: none;
   border-radius: 30px;
@@ -457,90 +570,6 @@ body::before {
 }
 
 .save-btn:hover {
-  background-color: #8e0d26;
+  background-color: var(--knu-dark);
   transform: translateY(-2px);
-}
-
-.selected-keywords {
-  margin-bottom: 20px;
-  padding: 12px;
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  border: 1px solid #eee;
-}
-
-.no-notices {
-  text-align: center;
-  padding: 60px 20px;
-  color: #888;
-  font-size: 16px;
-  font-weight: 500;
-  background: white;
-  border-radius: 15px;
-  border: 1px dashed #ddd;
-}
-
-.date-filter-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 25px;
-  background-color: white;
-  padding: 10px 20px;
-  border-radius: 30px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.filter-label {
-  font-weight: 700;
-  color: #555;
-  font-size: 0.95rem;
-  margin-right: 5px;
-}
-
-.date-input {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  font-family: 'Noto Sans KR', sans-serif;
-  color: #333;
-  outline: none;
-  cursor: pointer;
-  background-color: #fff;
-  min-width: 140px; 
-}
-
-.date-input:focus {
-  border-color: #b11030;
-  box-shadow: 0 0 0 2px rgba(177, 16, 48, 0.1);
-}
-
-.tilde {
-  font-weight: bold;
-  color: #888;
-}
-
-.reset-date-btn {
-  background-color: #f1f1f1;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  color: #666;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-
-.reset-date-btn:hover {
-  background-color: #e0e0e0;
-  color: #333;
-}
-
-.search-container {
-  margin-bottom: 15px;
 }
