@@ -859,12 +859,12 @@ function App() {
         </form>
       ) : (
         <form className="login-box" onSubmit={handleLogin}>
-          <h2>KNU 공지사항</h2>
+          <h2>KNU 맞춤형 공지사항 종합</h2>
           <input name="sid" placeholder="학번" required />
           <input name="pw" type="password" placeholder="비밀번호" required />
           <button type="submit">로그인</button>
           <div className="auth-links">
-            <span onClick={() => setIsResetMode(true)}>비밀번호 찾기</span> | 
+            <span onClick={() => setIsResetMode(true)}>비밀번호를 잊으셨나요?</span> | 
             <span onClick={() => setIsRegisterMode(true)}> 회원가입</span>
           </div>
         </form>
